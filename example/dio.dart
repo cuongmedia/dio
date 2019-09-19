@@ -3,16 +3,17 @@ import 'package:dio/dio.dart';
 
 main() async {
   var dio = Dio();
-  dio.options.baseUrl = "http://www.dtworkroom.com/doris/1/2.0.0/";
-  dio.options.connectTimeout = 5000; //5s
-  dio.options.receiveTimeout = 5000;
-  dio.options.validateStatus=(int status){
-    return status >0;
-  } ;
-  dio.options.headers = {
-    HttpHeaders.userAgentHeader: 'dio',
-    'common-header': 'xx',
-  };
+  dio.options
+    ..baseUrl = "http://httpbin.org/"
+    ..connectTimeout = 5000 //5s
+    ..receiveTimeout = 5000
+    ..validateStatus = (int status) {
+      return status > 0;
+    }
+    ..headers = {
+      HttpHeaders.userAgentHeader: 'dio',
+      'common-header': 'xx',
+    };
 
 // Or you can create dio instance and config it as follow:
 //  var dio = Dio(BaseOptions(
@@ -50,24 +51,27 @@ main() async {
   );
 
   // Create a FormData
-  FormData formData = FormData.from({
+  FormData formData = FormData.fromMap({
     "age": 25,
-    "file": UploadFileInfo(File("./example/upload.txt"), "upload.txt")
+    "file": await MultipartFile.fromFile(
+      "./example/upload.txt",
+      filename: "upload.txt",
+    )
   });
 
   // Send FormData
   response = await dio.post("/test", data: formData);
   print(response);
 
+  // post data with "application/x-www-form-urlencoded" format
   response = await dio.post(
     "/test",
     data: {
       "id": 8,
       "info": {"name": "wendux", "age": 25}
     },
-    // Send data with "application/x-www-form-urlencoded" format
     options: Options(
-      contentType: ContentType.parse("application/x-www-form-urlencoded"),
+      contentType: Headers.formUrlEncodedContentType,
     ),
   );
   print(response.data);

@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:dio/dio.dart';
+import 'package:dio/adapter.dart';
 
 class MyAdapter extends HttpClientAdapter {
-  DefaultHttpClientAdapter defaultHttpClientAdapter =
+  DefaultHttpClientAdapter _adapter =
       DefaultHttpClientAdapter();
 
   @override
@@ -13,12 +14,17 @@ class MyAdapter extends HttpClientAdapter {
     if (uri.host == "google.com") {
       return ResponseBody.fromString("Too young too simple!", 200);
     }
-    return defaultHttpClientAdapter.fetch(options, requestStream, cancelFuture);
+    return _adapter.fetch(options, requestStream, cancelFuture);
+  }
+
+  @override
+  void close({bool force = false}) {
+    _adapter.close(force: force);
   }
 }
 
 main() async {
-  var dio = new Dio();
+  var dio =  Dio();
   dio.httpClientAdapter = MyAdapter();
   Response response = await dio.get("https://google.com");
   print(response);
